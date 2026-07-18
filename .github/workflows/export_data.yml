@@ -1,0 +1,36 @@
+name: Export GitHub Data
+
+# Permite ejecutar este script manualmente desde la pestaña "Actions"
+on:
+  workflow_dispatch:
+
+jobs:
+  export-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests python-dotenv
+
+      - name: Run export script
+        # Aquí es donde le inyectamos el secreto al entorno de ejecución
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_GHP_TOKEN }}
+        run: python export_github.py
+
+      - name: Upload JSON Artifact
+        # Esto guarda el archivo .json para que puedas descargarlo después
+        uses: actions/upload-artifact@v4
+        with:
+          name: github-export-json
+          path: github_export.json
